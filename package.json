@@ -1,0 +1,21 @@
+{
+  "name": "redux-tools",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://LukeEllul@bitbucket.org/LukeEllul/redux-tools.git"
+  },
+  "author": "Luke Ellul <ellul.luke@gmail.com>",
+  "license": "ISC",
+  "homepage": "https://bitbucket.org/LukeEllul/redux-tools#readme",
+  "dependencies": {
+    "immutable": "^3.8.2",
+    "redux": "^3.7.2",
+    "redux-immutable": "^4.0.0"
+  }
+}
