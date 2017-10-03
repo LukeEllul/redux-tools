@@ -12,11 +12,14 @@ function createReducer(initialState, handlers){
     }
 }
 
+const actionToMap = store => next => action => (next(action.toObject()), action);
+
 //how to use createReducer function:
 // const hey = createReducer({paws: 'nuccu'}, (state, action) => ({
 //     ['boccu']: () => Object.assign({}, state, {boccu: 'succu'})
 // }));
 
 module.exports = {
-    createReducer
+    createReducer,
+    actionToMap
 };
