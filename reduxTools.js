@@ -20,13 +20,13 @@ function createReducer(initialState, handlers) {
 const actionToMap = store => next => action => (next(action.toObject()), action);
 
 function depthOf(object) {
-    var level = 1;
-    var key;
+    let level = 1;
+    let key;
     for (key in object) {
         if (!object.hasOwnProperty(key)) continue;
 
         if (typeof object[key] == 'object') {
-            var depth = depthOf(object[key]) + 1;
+            let depth = depthOf(object[key]) + 1;
             level = Math.max(depth, level);
         }
     }
