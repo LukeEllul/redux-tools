@@ -6,8 +6,10 @@ function createReducer(initialState, handlers) {
     return function reducer(state = initialState, action) {
         const handle = typeof handlers === 'function' ?
             handlers(state, action) : handlers;
-        if (handle.hasOwnProperty(action.type))
-            return handle[action.type](state, action);
+        const isMap = Map.isMap(handle);
+        if ((isMap && handle.has(action.type)) || handle.hasOwnProperty(action.type))
+            return isMap ? handle.get(action.type)(state, action) : 
+                handle[action.type](state, action);
         else return state;
     }
 }
