@@ -11,7 +11,7 @@ function createReducer(initialState, handlers) {
             handlers(state, action) : handlers;
         const isMap = Map.isMap(handle);
         if ((isMap && handle.has(action.type)) || handle.hasOwnProperty(action.type))
-            return isMap ? handle.get(action.type)(state, action) : 
+            return isMap ? handle.get(action.type)(state, action) :
                 handle[action.type](state, action);
         else return state;
     }
@@ -39,8 +39,16 @@ function depthOf(obj) {
     return level;
 }
 
-const addDeleteHandler = handlers => 
+const addDeleteHandler = handlers =>
     toMap(handlers).set('deleteAll', (state, action) => Map({}));
+
+const get = name => function check(obj) {
+    const thisObj = toMap(obj);
+    const v = thisObj.get(name);
+    if (v) return v;
+    const map = thisObj.filter(Map.isMap);
+    return map.size > 0 ? map.map(v => check(v)).find(v => v ? true : false) : undefined;
+}
 
 module.exports = {
     createReducer,
@@ -48,5 +56,6 @@ module.exports = {
     depthOf,
     toMap,
     addDeleteHandler,
-    toList
+    toList,
+    get
 };
