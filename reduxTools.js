@@ -24,7 +24,8 @@ function createReducer(initialState, handlers) {
 
 const actionToMap = store => next => action => (next(action.toObject()), action);
 
-function depthOf(object) {
+function depthOf(obj) {
+    const object = Map.isMap(obj) ? obj.toJS() : obj;
     let level = 1;
     let key;
     for (key in object) {
