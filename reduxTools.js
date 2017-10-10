@@ -1,8 +1,9 @@
 const { createStore } = require('redux');
 const { combineReducers } = require('redux-immutable');
-const { Map } = require('immutable');
+const { Map, fromJS, List } = require('immutable');
 
 const toMap = obj => Map.isMap(obj) ? obj : fromJS(obj);
+const toList = array => List.isList(array) ? array : fromJS(array);
 
 function createReducer(initialState, handlers) {
     return function reducer(state = initialState, action) {
@@ -38,12 +39,13 @@ function depthOf(object) {
 }
 
 const addDeleteHandler = handlers => 
-    toMap(handlers).set('delete', (state, action) => Map({}));
+    toMap(handlers).set('deleteAll', (state, action) => Map({}));
 
 module.exports = {
     createReducer,
     actionToMap,
     depthOf,
     toMap,
-    addDeleteHandler
+    addDeleteHandler,
+    toList
 };
