@@ -2,11 +2,14 @@ const { createStore } = require('redux');
 const { combineReducers } = require('redux-immutable');
 const { Map, fromJS, List } = require('immutable');
 
+const getHandlers = 'getHandlers';
+
 const toMap = obj => Map.isMap(obj) ? obj : fromJS(obj);
 const toList = array => List.isList(array) ? array : fromJS(array);
 
 function createReducer(initialState, handlers) {
     return function reducer(state = initialState, action) {
+        if(state === getHandlers) return handlers;
         const handle = typeof handlers === 'function' ?
             handlers(state, action) : handlers;
         const isMap = Map.isMap(handle);
@@ -57,5 +60,6 @@ module.exports = {
     toMap,
     addDeleteHandler,
     toList,
-    get
+    get,
+    getHandlers
 };
