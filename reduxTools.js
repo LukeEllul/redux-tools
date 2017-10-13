@@ -9,7 +9,7 @@ const toList = array => List.isList(array) ? array : fromJS(array);
 
 function createReducer(initialState, handlers) {
     return function reducer(state = initialState, action) {
-        if(state === getHandlers) return handlers;
+        if (state === getHandlers) return handlers;
         const handle = typeof handlers === 'function' ?
             handlers(state, action) : handlers;
         const isMap = Map.isMap(handle);
@@ -45,6 +45,9 @@ function depthOf(obj) {
 const addDeleteHandler = handlers =>
     toMap(handlers).set('deleteAll', (state, action) => Map({}));
 
+const nest = (body = Map({}), del, merge) => (key, value = Map({})) => del ? body.delete(key) : merge ? body.set(key, body.get(key).merge(toMap(value))) :
+    body.set(key, checkIfObj(value) ? fromJS(value) : value);
+
 const get = name => function check(obj) {
     const thisObj = toMap(obj);
     const v = thisObj.get(name);
@@ -61,5 +64,6 @@ module.exports = {
     addDeleteHandler,
     toList,
     get,
-    getHandlers
+    getHandlers,
+    nest
 };
