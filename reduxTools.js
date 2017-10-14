@@ -3,13 +3,14 @@ const { combineReducers } = require('redux-immutable');
 const { Map, fromJS, List } = require('immutable');
 
 const getHandlers = 'getHandlers';
+const deleteAll = 'deleteAll';
 
 const toMap = obj => Map.isMap(obj) ? obj : fromJS(obj);
 const toList = array => List.isList(array) ? array : fromJS(array);
 
 function createReducer(initialState, handlers) {
     return function reducer(state = initialState, action) {
-        if (state === getHandlers) return handlers;
+        if (state === getHandlers || state === 'getName') return handlers;
         const handle = typeof handlers === 'function' ?
             handlers(state, action) : handlers;
         const isMap = Map.isMap(handle);
@@ -43,10 +44,18 @@ function depthOf(obj) {
 }
 
 const addDeleteHandler = handlers =>
-    toMap(handlers).set('deleteAll', (state, action) => Map({}));
+    toMap(handlers).set(deleteAll, (state, action) => Map({}));
 
-const nest = (body = Map({}), del, merge) => (key, value = Map({})) => del ? body.delete(key) : merge ? body.set(key, body.get(key).merge(toMap(value))) :
-    body.set(key, checkIfObj(value) ? fromJS(value) : value);
+const checkIfObj = v => typeof v === 'object' && !Map.isMap(v) && !List.isList(v) && v !== null;
+//const checkIfObjOrMap = (v1, v2) => (checkIfObj(v1) && !Array.isArray(v1) && checkIfObj(v2) && !Array.isArray(v2)) || (Map.isMap(v1) && Map.isMap(v2));
+const checkIfObjOrMap = v => (checkIfObj(v) && !Array.isArray(v)) || Map.isMap(v);
+
+const nest = (body = Map({}), del, merge) => (key, value = Map({})) => {
+    const thisBody = toMap(body);
+    const thisValue = toMap(value);
+    return del ? thisBody.delete(key) : merge ? thisBody.set(key, thisBody.get(key).merge(toMap(thisValue))) :
+        thisBody.set(key, thisValue);
+}
 
 const get = name => function check(obj) {
     const thisObj = toMap(obj);
@@ -65,5 +74,8 @@ module.exports = {
     toList,
     get,
     getHandlers,
-    nest
+    nest,
+    checkIfObj,
+    checkIfObjOrMap,
+    deleteAll
 };
