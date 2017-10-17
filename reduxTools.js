@@ -49,6 +49,7 @@ const addDeleteHandler = handlers =>
 const checkIfObj = v => typeof v === 'object' && !Map.isMap(v) && !List.isList(v) && v !== null;
 //const checkIfObjOrMap = (v1, v2) => (checkIfObj(v1) && !Array.isArray(v1) && checkIfObj(v2) && !Array.isArray(v2)) || (Map.isMap(v1) && Map.isMap(v2));
 const checkIfObjOrMap = v => (checkIfObj(v) && !Array.isArray(v)) || Map.isMap(v);
+const checkIfObjOrMaporList = v => Array.isArray(v) || List.isList(v) || checkIfObjOrMap(v);
 
 const nest = (body = Map({}), del, merge) => (key, value = Map({})) => {
     const thisBody = toMap(body);
@@ -78,5 +79,6 @@ module.exports = {
     nest,
     checkIfObj,
     checkIfObjOrMap,
-    deleteAll
+    deleteAll,
+    checkIfObjOrMaporList
 };
