@@ -1,6 +1,6 @@
 const { Map, List } = require('immutable');
 const R = require('ramda');
-const { deleteAll, createReducer, nest, toList } = require('./redux-tools/reduxTools');
+const { deleteAll, createReducer, nest, toList } = require('./reduxTools');
 
 const point = '.';
 
