@@ -28,13 +28,10 @@ const createUpperReducer = name => lowerReducer => {
 }
 
 function makeSet(set = Map({})) {
-    let thisSet = set;
     return (state = Map({}), action) => {
-        if (state === 'getSet') return thisSet;
-        if(typeof state === 'string' && state.slice(0, 8) === 'remove ')
-                return (thisSet = thisSet.remove(state.slice(8)), state);
+        if (state === 'getSet') return set;
         const v = action.type;
-        const reducer = thisSet.find(
+        const reducer = set.find(
             (val, k) => v === k || v.slice(0, v.indexOf(point)) === k);
         return reducer ? reducer(state, action) : state;
     }
@@ -51,6 +48,8 @@ const addReducersToSet = (set = makeSet()) => (...reducers) =>
     ));
 
 const adjReducers = (...reducers) => (set = makeSet()) => addReducersToSet(set)(...reducers);
+
+const removeReducerFromSet = set => name => makeSet(set('getSet').delete(name));
 
 module.exports = {
     createUpperReducer,
