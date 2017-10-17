@@ -40,7 +40,7 @@ function makeSet(set = Map({})) {
     }
 }
 
-const addReducersToSet = (set = makeSet()) => (...reducers) =>
+const addReducersToSet = (...reducers) => (set = makeSet()) =>
     makeSet(reducers.reduce(
         (set, reducer) => {
             const name = reducer('getName');
@@ -49,8 +49,6 @@ const addReducersToSet = (set = makeSet()) => (...reducers) =>
         },
         set('getSet')
     ));
-
-const adjReducers = (...reducers) => (set = makeSet()) => addReducersToSet(set)(...reducers);
 
 const removeReducerFromSet = set => name => makeSet(set('getSet').delete(name));
 
