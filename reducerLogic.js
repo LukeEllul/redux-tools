@@ -4,6 +4,12 @@ const { deleteAll, createReducer, nest, toList } = require('./reduxTools');
 
 const point = '.';
 
+const civilizedReducer = (reducer, name, intialState) => 
+    (state = intialState || Map({}), action) => {
+        if(state === 'getName') return name;
+        return reducer(state, action);
+    }
+
 const createUpperReducer = name => lowerReducer => {
     let thisLowerReducer = lowerReducer;
     return (state = Map({}), action) => {
@@ -52,9 +58,23 @@ const addReducersToSet = (...reducers) => (set = makeSet()) =>
 
 const removeReducerFromSet = set => name => makeSet(set('getSet').delete(name));
 
+const createSetOfReducers = (name, setOfReducers = Map({})) => 
+    createUpperReducer(name)(makeSet(setOfReducers));
+
+const addToSetOfReducers = setOfReducers => (...reducers) =>
+    createSetOfReducers(
+        setOfReducers('getName'), 
+        addReducersToSet(...reducers)(setOfReducers('getLowerReducer')('getSet'))
+    );
+
+const removeFromSetOfReducers = setOfReducers => name =>
+    createUpperReducer(setOfReducers('getName'))(removeReducerFromSet(setOfReducers('getLowerReducer'))(name));
+
 module.exports = {
     createUpperReducer,
-    adjReducers,
-    addReducersToSet,
-    removeReducerFromSet
+    civilizedReducer,
+    changeLowerReducer,
+    createSetOfReducers,
+    addToSetOfReducers,
+    removeFromSetOfReducers
 }
