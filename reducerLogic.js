@@ -27,6 +27,9 @@ const createUpperReducer = name => lowerReducer => {
     }
 }
 
+const changeLowerReducer = upperReducer => lowerReducer =>
+    createUpperReducer(upperReducer('getName'))(lowerReducer);
+
 function makeSet(set = Map({})) {
     return (state = Map({}), action) => {
         if (state === 'getSet') return set;
@@ -54,5 +57,6 @@ const removeReducerFromSet = set => name => makeSet(set('getSet').delete(name));
 module.exports = {
     createUpperReducer,
     adjReducers,
-    addReducersToSet
+    addReducersToSet,
+    removeReducerFromSet
 }
