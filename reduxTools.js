@@ -53,7 +53,8 @@ const checkIfObjOrMap = v => (checkIfObj(v) && !Array.isArray(v)) || Map.isMap(v
 const nest = (body = Map({}), del, merge) => (key, value = Map({})) => {
     const thisBody = toMap(body);
     const thisValue = toMap(value);
-    return del ? thisBody.delete(key) : merge ? thisBody.set(key, thisBody.get(key).merge(toMap(thisValue))) :
+    const prevValue = thisBody.get(key);
+    return del ? thisBody.delete(key) : merge ? thisBody.set(key, List.isList(prevValue) ? prevValue.push(thisValue) : prevValue.merge(toMap(thisValue))) :
         thisBody.set(key, thisValue);
 }
 
