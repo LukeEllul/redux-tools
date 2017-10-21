@@ -1,12 +1,13 @@
 const { Map, List } = require('immutable');
 const R = require('ramda');
-const { deleteAll, createReducer, nest, toList } = require('./reduxTools');
+const { deleteAll, createReducer } = require('./reduxTools');
+const { nest, toList } = require('./datastructures/dataStructures');
 
 const point = '.';
 
-const civilizedReducer = (reducer, name, intialState) => 
+const civilizedReducer = (reducer, name, intialState) =>
     (state = intialState || Map({}), action) => {
-        if(state === 'getName') return name;
+        if (state === 'getName') return name;
         return reducer(state, action);
     }
 
@@ -58,16 +59,16 @@ const addReducersToSet = (...reducers) => (set = makeSet()) =>
 
 const removeReducerFromSet = set => name => makeSet(set('getSet').delete(name));
 
-const createSetOfReducers = (name, setOfReducers = Map({})) => 
-    createUpperReducer(name)(makeSet(setOfReducers));
+const createSetOfReducers = name => (setOfReducers = makeSet()) =>
+    createUpperReducer(name)(setOfReducers);
 
-const addToSetOfReducers = setOfReducers => (...reducers) =>
+const addToSetOfReducers = (...reducers) => setOfReducers =>
     createSetOfReducers(
-        setOfReducers('getName'), 
-        addReducersToSet(...reducers)(setOfReducers('getLowerReducer')('getSet'))
+        setOfReducers('getName'),
+        addReducersToSet(...reducers)(setOfReducers('getLowerReducer'))
     );
 
-const removeFromSetOfReducers = setOfReducers => name =>
+const removeFromSetOfReducers = name => setOfReducers =>
     createUpperReducer(setOfReducers('getName'))(removeReducerFromSet(setOfReducers('getLowerReducer'))(name));
 
 module.exports = {
