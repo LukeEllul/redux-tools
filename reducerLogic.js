@@ -12,15 +12,10 @@ const civilizedReducer = (reducer, name, intialState) =>
     }
 
 const createUpperReducer = name => lowerReducer => {
-    let thisLowerReducer = lowerReducer;
     return (state = Map({}), action) => {
         if (state === 'getName') return name;
-        if (state === 'getLowerReducer') return thisLowerReducer;
+        if (state === 'getLowerReducer') return lowerReducer;
         if (action.type === deleteAll) return state.delete(name);
-        if (action.type === name && action.changeLowerReducer) {
-            thisLowerReducer = action.changeLowerReducer(thisLowerReducer);
-            return state;
-        }
         if (action.type === name && action.getState)
             return (action.getState(state.get(name)), state);
         const v = action.type;
@@ -64,9 +59,8 @@ const createSetOfReducers = name => (setOfReducers = makeSet()) =>
 
 const addToSetOfReducers = (...reducers) => setOfReducers =>
     createSetOfReducers(
-        setOfReducers('getName'),
-        addReducersToSet(...reducers)(setOfReducers('getLowerReducer'))
-    );
+        setOfReducers('getName'))
+        (addReducersToSet(...reducers)(setOfReducers('getLowerReducer')));
 
 const removeFromSetOfReducers = name => setOfReducers =>
     createUpperReducer(setOfReducers('getName'))(removeReducerFromSet(setOfReducers('getLowerReducer'))(name));
