@@ -22,7 +22,7 @@ const createUpperReducer = name => lowerReducer => {
         const portion = v.slice(0, name.length);
         return portion === name ?
             state.set(name,
-                thisLowerReducer(
+                lowerReducer(
                     state.get(name),
                     nest(action)('type', v.slice(v.indexOf(point) + 1)).toJS()
                 )) : state;
