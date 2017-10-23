@@ -54,8 +54,17 @@ const addReducersToSet = (...reducers) => (set = makeSet()) =>
 
 const removeReducerFromSet = set => name => makeSet(set('getSet').delete(name));
 
-const createSetOfReducers = name => (setOfReducers = makeSet()) =>
-    createUpperReducer(name)(setOfReducers);
+const createSetOfReducers = name => (setOfReducers = makeSet()) => {
+    let set = setOfReducers;
+    let fn = createUpperReducer(name)(set);
+    return (state = Map({}), action) => {
+        if(action && action.type.slice(0, name.length) === name && action.addReducers){
+            set = addReducersToSet(...action.addReducers)(set);
+            fn = createUpperReducer(name)(set);
+        }
+        return fn(state, action);
+    }
+}
 
 const addToSetOfReducers = (...reducers) => setOfReducers =>
     createSetOfReducers(
