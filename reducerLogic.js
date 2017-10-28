@@ -92,14 +92,6 @@ const addToSetOfReducers = (...reducers) => setOfReducers =>
 const removeFromSetOfReducers = name => setOfReducers =>
     createUpperReducer(setOfReducers('getName'))(removeReducerFromSet(setOfReducers('getLowerReducer'))(name));
 
-
-
-const reds = [
-    createSetOfReducers('red1')()
-];
-
-const root = addToSetOfReducers(...reds)(createSetOfReducers('root')());
-
 const addReducersMiddleWare = store => next => action => {
     const state1 = store.getState();
     next(action);
@@ -109,45 +101,9 @@ const addReducersMiddleWare = store => next => action => {
     }
 }
 
-const store = createStore(root, applyMiddleware(addReducersMiddleWare));
-
-store.dispatch({
-    type: 'root'
-});
-
-console.log(store.getState());
-
-const heyFn = (state = Map({}), action) => state.set('boccu', 'paws');
-
-const fn = store.dispatch({
-    type: 'root.red1',
-    addReducers: [addToSetOfReducers(createUpperReducer('red3')(heyFn))(createSetOfReducers('red4')())]
-});
-
-store.replaceReducer(fn);
-
-store.dispatch({
-    type: 'root.red1.red4.red3'
-});
-
-console.log(store.getState());
-
-store.replaceReducer(store.dispatch({
-    type: 'root.red1.red4',
-    addReducers: [createUpperReducer('red5')(heyFn)]
-}));
-
-store.dispatch({
-    type: 'root.red1.red4.red5'
-});
-
-console.log(store.getState());
-
 module.exports = {
     createUpperReducer,
-    civilizedReducer,
-    changeLowerReducer,
     createSetOfReducers,
     addToSetOfReducers,
-    removeFromSetOfReducers
+    addReducersMiddleWare
 }

@@ -24,7 +24,7 @@ function createReducer(initialState, handlers) {
 //     ['boccu']: () => Object.assign({}, state, {boccu: 'succu'})
 // }));
 
-const actionToMap = store => next => action => (next(action.toObject()), action);
+const actionToMap = store => next => action => next(toMap(action));
 
 const addDeleteHandler = handlers =>
     toMap(handlers).set(deleteAll, (state, action) => Map({}));
