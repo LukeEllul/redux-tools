@@ -25,6 +25,7 @@ function createReducer(initialState, handlers) {
 // }));
 
 const actionToMap = store => next => action => next(toMap(action));
+const mapToAction = store => next => action => next(Map.isMap(action) ? action.toJS() : action);
 
 const addDeleteHandler = handlers =>
     toMap(handlers).set(deleteAll, (state, action) => Map({}));
@@ -33,6 +34,7 @@ const addDeleteHandler = handlers =>
 module.exports = {
     createReducer,
     actionToMap,
+    mapToAction,
     addDeleteHandler,
     getHandlers,
     deleteAll
