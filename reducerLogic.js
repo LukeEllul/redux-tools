@@ -21,13 +21,15 @@ const createUpperReducer = name => lowerReducer => {
             return (action.getState(state.get(name)), state);
         const v = action.type;
         const portion = v.slice(0, name.length);
-        const lowerReducerValue = lowerReducer(
-            state.get(name),
-            nest(action)('type', v.slice(v.indexOf(point) + 1)).toJS()
-        );
-        if(typeof lowerReducerValue === 'function') return lowerReducerValue;
-        return portion === name ?
-            state.set(name, lowerReducerValue) : state;
+        if(portion === name){
+            const lowerReducerValue = lowerReducer(
+                state.get(name),
+                nest(action)('type', v.slice(v.indexOf(point) + 1)).toJS()
+            );
+            if(typeof lowerReducerValue === 'function') return lowerReducerValue;
+            return state.set(name, lowerReducerValue);
+        }
+        return state;
     }
 }
 
@@ -89,6 +91,9 @@ const addToSetOfReducers = (...reducers) => setOfReducers =>
         setOfReducers('getName'))
         (addReducersToSet(...reducers)(setOfReducers('getLowerReducer')));
 
+const createSet = (...reducers) => name =>
+        addToSetOfReducers(...reducers)(createSetOfReducers(name)());
+
 const removeFromSetOfReducers = name => setOfReducers =>
     createUpperReducer(setOfReducers('getName'))(removeReducerFromSet(setOfReducers('getLowerReducer'))(name));
 
@@ -105,5 +110,6 @@ module.exports = {
     createUpperReducer,
     createSetOfReducers,
     addToSetOfReducers,
+    createSet,
     addReducersMiddleWare
 }
