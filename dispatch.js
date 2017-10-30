@@ -4,7 +4,7 @@ const {createStore, applyMiddleware} = require('redux');
 const {createSetOfReducers, createUpperReducer, createSet, addReducersMiddleWare} = require('./reducerLogic');
 const {toMap, fromMap} = require('./datastructures/dataStructures');
 
-const handleAddReducers = (returnedDispatch, prevAction = {}) => store => 
+const handleAddReducers = (returnedDispatch, prevAction = Map({})) => store => 
     typeof returnedDispatch === 'function' ? (
         store.replaceReducer(returnedDispatch),
         store.dispatch(fromMap(prevAction)),
@@ -14,7 +14,8 @@ const handleAddReducers = (returnedDispatch, prevAction = {}) => store =>
 const dispatch = action => ([store, prevAction]) => {
     const returnedDispatch = store.dispatch(fromMap(action));
     return [R.pipe(
-        handleAddReducers(returnedDispatch, prevAction)
+        handleAddReducers(returnedDispatch, 
+            !prevAction || prevAction.has('addReducers') ? Map({type: action.get('type')}) : prevAction)
     )(store), action];
 }
 
@@ -22,7 +23,8 @@ const showState = ([store, prevAction]) =>
     (console.log(store.getState()), [store, prevAction]);
 
 const apply = (...actions) => store =>
-    R.pipe(...actions.map(action => dispatch(toMap(action))))([store]);
+    R.pipe(...actions.map(action => 
+        typeof action === 'function' ? action : dispatch(toMap(action))))([store]);
 
 module.exports = {
     dispatch,
