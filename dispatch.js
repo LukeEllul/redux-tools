@@ -8,10 +8,9 @@ const handleAddReducers = (action, prevAction) => ([store, acc]) => {
         store.dispatch(fromMap(action));
         const reducer = store.getState();
         store.replaceReducer(
-            (state, action) => reducer(
-                typeof state === 'function' ? state1 : state, action)
+            (state, action) => action.type === 'getState1' ? state1 : reducer(state, action)
         );
-        store.dispatch(fromMap(prevAction));
+        store.dispatch({type: 'getState1'});
         return [store, acc || 1];
     }
     return [store];
@@ -22,7 +21,7 @@ const checkPrevAction = prevAction =>
 
 const dispatch = action => ([store, prevAction]) => {
     const [thisStore, acc] = R.pipe(
-        handleAddReducers(action, checkPrevAction(prevAction))
+        handleAddReducers(fromMap(action), checkPrevAction(prevAction))
     )([store]);
     acc || thisStore.dispatch(fromMap(action));
     return [thisStore, action];
@@ -33,10 +32,9 @@ const getRootReducer = prevAction => store => {
     store.dispatch({ type: '', getRoot: '' });
     const rootReducer = store.getState();
     store.replaceReducer(
-        (state, action) => rootReducer(
-            typeof state === 'function' ? state1 : state, action)
+        (state, action) => action.type === 'getState1' ? state1 : rootReducer(state, action)
     );
-    store.dispatch(fromMap(prevAction));
+    store.dispatch({type: 'getState1'});
     return rootReducer;
 }
 
@@ -56,7 +54,7 @@ const showState = ([store, prevAction]) =>
 
 const get = (type, cb) => ([store, prevAction]) => {
     cb(getReducer({ type: type, getReducer: '' }, checkPrevAction(prevAction))(store));
-    return [store, action];
+    return [store, prevAction];
 }
 
 const put = (...reducers) => under => Map({

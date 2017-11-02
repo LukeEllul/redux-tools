@@ -50,7 +50,6 @@ function makeSet(set = Map({})) {
 const addReducersToSet = (...reducers) => (set = makeSet()) =>
     makeSet(reducers.reduce(
         (set, reducer) => {
-            console.log(reducers);
             const name = reducer('getName');
             return typeof name === 'string' ? set.set(name, reducer) :
                 set.merge(name);
@@ -76,18 +75,16 @@ const createSetOfReducers = name => (setOfReducers = makeSet()) => {
     const fn = createUpperReducer(name)(setOfReducers);
     return (state = Map({}), action) => {
         if (state === 'getLowerReducer') return fn(state, action);
-        if (action && action.type === 'getState') return state;
         if (action && action.type === '' && action.getRoot === '')
             return createSetOfReducers(name)(setOfReducers);
         if (action && action.addReducers && action.type === name)
             return createSetOfReducers(name)(addReducersToSet(...action.addReducers)(setOfReducers));
-        if (action && action.getReducer && action.type.match(/point/g).length === 1 && action.type.slice(0, name.length) === name) {
+        if (action && action.getReducer === '' && action.type.match(new RegExp(`\[${point}]`, 'g')).length === 1 && action.type.slice(0, name.length) === name) {
             return setOfReducers;
         }
         const returnedValue = fn(state, action);
         if (typeof returnedValue === 'function') {
-            if (Map.isMap(returnedValue('getSet')))
-                return returnedValue;
+            if (action.getReducer === '') return returnedValue;
             return createSetOfReducers(name)(addReducersToSet(returnedValue)(setOfReducers));
         }
         return returnedValue;
