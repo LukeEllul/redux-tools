@@ -2,7 +2,7 @@ const { Map, List } = require('immutable');
 const R = require('ramda');
 const { deleteAll, createReducer } = require('./reduxTools');
 const { nest, toList } = require('./datastructures/dataStructures');
-const {createStore, applyMiddleware} = require('redux');
+const { createStore, applyMiddleware } = require('redux');
 
 const point = '.';
 
@@ -21,12 +21,12 @@ const createUpperReducer = name => lowerReducer => {
             return (action.getState(state.get(name)), state);
         const v = action.type;
         const portion = v.slice(0, name.length);
-        if(portion === name){
+        if (portion === name) {
             const lowerReducerValue = lowerReducer(
                 state.get(name),
                 nest(action)('type', v.slice(v.indexOf(point) + 1)).toJS()
             );
-            if(typeof lowerReducerValue === 'function') return lowerReducerValue;
+            if (typeof lowerReducerValue === 'function') return lowerReducerValue;
             return state.set(name, lowerReducerValue);
         }
         return state;
@@ -40,7 +40,7 @@ function makeSet(set = Map({})) {
     return (state = Map({}), action) => {
         if (state === 'getSet') return set;
         const v = action && action.type;
-        if(!v) return state;
+        if (!v) return state;
         const reducer = set.find(
             (val, k) => v === k || v.slice(0, v.indexOf(point)) === k);
         return reducer ? reducer(state, action) : state;
@@ -50,6 +50,7 @@ function makeSet(set = Map({})) {
 const addReducersToSet = (...reducers) => (set = makeSet()) =>
     makeSet(reducers.reduce(
         (set, reducer) => {
+            console.log(reducers);
             const name = reducer('getName');
             return typeof name === 'string' ? set.set(name, reducer) :
                 set.merge(name);
@@ -74,20 +75,21 @@ const removeReducerFromSet = set => name => makeSet(set('getSet').delete(name));
 const createSetOfReducers = name => (setOfReducers = makeSet()) => {
     const fn = createUpperReducer(name)(setOfReducers);
     return (state = Map({}), action) => {
-        if(state === 'getLowerReducer') return fn(state, action);
-        if(action && action.type === 'getState') return state;
-        if(action && action.type === '' && action.getRoot === '')
+        if (state === 'getLowerReducer') return fn(state, action);
+        if (action && action.type === 'getState') return state;
+        if (action && action.type === '' && action.getRoot === '')
             return createSetOfReducers(name)(setOfReducers);
-        if(action && action.addReducers && action.type === name)
+        if (action && action.addReducers && action.type === name)
             return createSetOfReducers(name)(addReducersToSet(...action.addReducers)(setOfReducers));
-        if(action && action.getReducer && action.type.match(/point/g).length === 1 && action.type.slice(0, name.length) === name){
+        if (action && action.getReducer && action.type.match(/point/g).length === 1 && action.type.slice(0, name.length) === name) {
             return setOfReducers;
         }
         const returnedValue = fn(state, action);
-        if(typeof returnedValue === 'function')
-            if(Map.isMap(returnedValue('getSet')))
+        if (typeof returnedValue === 'function') {
+            if (Map.isMap(returnedValue('getSet')))
                 return returnedValue;
             return createSetOfReducers(name)(addReducersToSet(returnedValue)(setOfReducers));
+        }
         return returnedValue;
     }
 }
@@ -98,7 +100,7 @@ const addToSetOfReducers = (...reducers) => setOfReducers =>
         (addReducersToSet(...reducers)(setOfReducers('getLowerReducer')));
 
 const createSet = (...reducers) => name =>
-        addToSetOfReducers(...reducers)(createSetOfReducers(name)());
+    addToSetOfReducers(...reducers)(createSetOfReducers(name)());
 
 const removeFromSetOfReducers = name => setOfReducers =>
     createUpperReducer(setOfReducers('getName'))(removeReducerFromSet(setOfReducers('getLowerReducer'))(name));
