@@ -75,13 +75,19 @@ const createSetOfReducers = name => (setOfReducers = makeSet()) => {
     const fn = createUpperReducer(name)(setOfReducers);
     return (state = Map({}), action) => {
         if(state === 'getLowerReducer') return fn(state, action);
-        if(action && action.addReducers && action.type === name) {
+        if(action && action.type === 'getState') return state;
+        if(action && action.type === '' && action.getRoot === '')
+            return createSetOfReducers(name)(setOfReducers);
+        if(action && action.addReducers && action.type === name)
             return createSetOfReducers(name)(addReducersToSet(...action.addReducers)(setOfReducers));
+        if(action && action.getReducer && action.type.match(/point/g).length === 1 && action.type.slice(0, name.length) === name){
+            return setOfReducers;
         }
         const returnedValue = fn(state, action);
-        if(typeof returnedValue === 'function') {
+        if(typeof returnedValue === 'function')
+            if(Map.isMap(returnedValue('getSet')))
+                return returnedValue;
             return createSetOfReducers(name)(addReducersToSet(returnedValue)(setOfReducers));
-        }
         return returnedValue;
     }
 }
@@ -97,19 +103,9 @@ const createSet = (...reducers) => name =>
 const removeFromSetOfReducers = name => setOfReducers =>
     createUpperReducer(setOfReducers('getName'))(removeReducerFromSet(setOfReducers('getLowerReducer'))(name));
 
-const addReducersMiddleWare = store => next => action => {
-    const state1 = store.getState();
-    next(action);
-    if(action.addReducers){
-        const reducer = store.getState();
-        return (state, action) => reducer(typeof state === 'function' ? state1 : state, action);
-    }
-}
-
 module.exports = {
     createUpperReducer,
     createSetOfReducers,
     addToSetOfReducers,
-    createSet,
-    addReducersMiddleWare
+    createSet
 }
