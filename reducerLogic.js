@@ -106,5 +106,6 @@ module.exports = {
     createUpperReducer,
     createSetOfReducers,
     addToSetOfReducers,
-    createSet
+    createSet,
+    point
 }

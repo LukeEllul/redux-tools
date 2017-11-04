@@ -1,16 +1,18 @@
 const { Map, List } = require('immutable');
 const R = require('ramda');
 const { toMap, fromMap } = require('./datastructures/dataStructures');
+const { point } = require('./reducerLogic');
 
-const handleAddReducers = (action, prevAction) => ([store, acc]) => {
+const changeReducer = (currentState, reducer) =>
+    (state, action) => action.type === 'getState1' ? currentState : reducer(state, action);
+
+const handleAddReducers = action => ([store, acc]) => {
     if (action.addReducers) {
         const state1 = store.getState();
         store.dispatch(fromMap(action));
         const reducer = store.getState();
-        store.replaceReducer(
-            (state, action) => action.type === 'getState1' ? state1 : reducer(state, action)
-        );
-        store.dispatch({type: 'getState1'});
+        store.replaceReducer(changeReducer(state1, reducer));
+        store.dispatch({ type: 'getState1' });
         return [store, acc || 1];
     }
     return [store];
@@ -21,25 +23,23 @@ const checkPrevAction = prevAction =>
 
 const dispatch = action => ([store, prevAction]) => {
     const [thisStore, acc] = R.pipe(
-        handleAddReducers(fromMap(action), checkPrevAction(prevAction))
+        handleAddReducers(fromMap(action))
     )([store]);
     acc || thisStore.dispatch(fromMap(action));
     return [thisStore, action];
 }
 
-const getRootReducer = prevAction => store => {
+const getRootReducer = store => {
     const state1 = store.getState();
     store.dispatch({ type: '', getRoot: '' });
     const rootReducer = store.getState();
-    store.replaceReducer(
-        (state, action) => action.type === 'getState1' ? state1 : rootReducer(state, action)
-    );
-    store.dispatch({type: 'getState1'});
+    store.replaceReducer(changeReducer(state1, rootReducer));
+    store.dispatch({ type: 'getState1' });
     return rootReducer;
 }
 
-const getReducer = (action, prevAction) => store => {
-    const rootReducer = getRootReducer(prevAction)(store);
+const getReducer = action => store => {
+    const rootReducer = getRootReducer(store);
     const setOfReducers = rootReducer(Map({}), action);
     const v = action.type;
     return setOfReducers('getSet').get(v.slice(v.lastIndexOf('.') + 1));
@@ -53,7 +53,7 @@ const showState = ([store, prevAction]) =>
     (console.log(store.getState()), [store, prevAction]);
 
 const get = (type, cb) => ([store, prevAction]) => {
-    cb(getReducer({ type: type, getReducer: '' }, checkPrevAction(prevAction))(store));
+    cb(getReducer({ type: type, getReducer: '' })(store));
     return [store, prevAction];
 }
 
@@ -62,9 +62,12 @@ const put = (...reducers) => under => Map({
     addReducers: reducers
 });
 
+const under = name => sub => name + point + sub;
+
 module.exports = {
     apply,
     showState,
     get,
-    put
+    put,
+    under
 };
