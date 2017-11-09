@@ -42,7 +42,7 @@ const getReducer = action => store => {
     const rootReducer = getRootReducer(store);
     const setOfReducers = rootReducer(Map({}), action);
     const v = action.type;
-    return setOfReducers('getSet').get(v.slice(v.lastIndexOf('.') + 1));
+    return setOfReducers('getSet').get(v.slice(v.lastIndexOf(point) + 1));
 }
 
 const apply = (...actions) => store =>
